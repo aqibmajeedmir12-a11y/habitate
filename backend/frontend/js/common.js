@@ -1346,17 +1346,21 @@ document.addEventListener("click", (e) => {
   
   if (window.innerWidth <= 1024) {
     const sidebar = document.querySelector('.sidebar');
+    const overlay = document.querySelector('.sidebar-overlay');
     const menuBtn = document.querySelector('.mobile-menu-btn');
     if (sidebar && sidebar.classList.contains('show') && !sidebar.contains(e.target) && (!menuBtn || !menuBtn.contains(e.target))) {
       sidebar.classList.remove('show');
+      if (overlay) overlay.classList.remove('show');
     }
   }
 });
 
 function toggleSidebar() {
   const sidebar = document.querySelector('.sidebar');
+  const overlay = document.querySelector('.sidebar-overlay');
   if (sidebar) {
     sidebar.classList.toggle('show');
+    if (overlay) overlay.classList.toggle('show');
   }
 }
 
