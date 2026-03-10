@@ -2,41 +2,43 @@
    ANALYTICS.JS — Analytics page logic
 ══════════════════════════════════════ */
 
-async function renderAnalytics(){
-  try{
-    const res = await fetch(`${API_BASE}/api/habits/analytics/summary`);
-    const data = await res.json();
+async function renderAnalytics() {
+  try {
+    const [resSummary, resLogs] = await Promise.all([
+      fetchAuth(`${API_BASE}/api/habits/analytics/summary`),
+      fetchAuth(`${API_BASE}/api/habits/analytics/logs`)
+    ]);
+    const data = await resSummary.json();
+    const logsData = await resLogs.json();
 
     const weeklyEl = document.getElementById("an-weekly");
     const completedEl = document.getElementById("an-completed");
     const startEl = document.getElementById("an-start");
     const gradeEl = document.getElementById("an-grade");
 
-    if(weeklyEl) weeklyEl.textContent = data.completionRate + "%";
-    if(completedEl) completedEl.textContent = data.completed;
-    if(startEl) startEl.textContent = "7:00";
-    if(gradeEl) gradeEl.textContent =
+    if (weeklyEl) weeklyEl.textContent = data.completionRate + "%";
+    if (completedEl) completedEl.textContent = data.completed;
+    if (startEl) startEl.textContent = "7:00";
+    if (gradeEl) gradeEl.textContent =
       data.completionRate >= 80 ? "A+" :
-      data.completionRate >= 60 ? "A"  :
-      data.completionRate >= 40 ? "B"  : "C";
+        data.completionRate >= 60 ? "A" :
+          data.completionRate >= 40 ? "B" : "C";
 
     renderBarChartFromDB(data);
     renderDonutFromDB(data.categories);
     renderTopStreaksFromDB(data.topStreaks);
     renderTimeChartFromDB(data);
 
-    const logsRes = await fetch(`${API_BASE}/api/habits/analytics/logs`);
-    const logsData = await logsRes.json();
     renderAnalyticsProgressChart(logsData.heatmap || {});
-  } catch(err){
+  } catch (err) {
     console.error("Analytics error:", err);
   }
 }
 
-function renderBarChartFromDB(data){
+function renderBarChartFromDB(data) {
   const c = document.getElementById("bar-chart");
-  if(!c) return;
-  const days = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+  if (!c) return;
+  const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const weekly = data.weekly || {};
   const max = Math.max(...Object.values(weekly), 1);
   c.innerHTML = `<div style="display:flex;align-items:flex-end;gap:8px;height:140px;padding-bottom:24px;position:relative">` +
@@ -52,16 +54,16 @@ function renderBarChartFromDB(data){
     }).join("") + `</div>`;
 }
 
-function renderDonutFromDB(categories){
-  if(!categories) return;
+function renderDonutFromDB(categories) {
+  if (!categories) return;
   const total = Object.values(categories).reduce((a, b) => a + b, 0);
   const circ = 314;
   let offset = 0;
-  const donutColors = ["#7c3aed","#22c55e","#3b82f6","#f59e0b","#ec4899"];
+  const donutColors = ["#7c3aed", "#22c55e", "#3b82f6", "#f59e0b", "#ec4899"];
   const keys = Object.keys(categories);
   keys.slice(0, 3).forEach((cat, i) => {
     const el = document.getElementById("donut" + (i + 1));
-    if(!el) return;
+    if (!el) return;
     const pct = (categories[cat] / total) * 100;
     const dash = circ * pct / 100;
     el.style.stroke = donutColors[i];
@@ -70,7 +72,7 @@ function renderDonutFromDB(categories){
     offset += dash;
   });
   const leg = document.getElementById("donut-legend");
-  if(!leg) return;
+  if (!leg) return;
   leg.innerHTML = keys.map((cat, i) => {
     const pct = Math.round((categories[cat] / total) * 100);
     return `<div class="donut-leg-item">
@@ -81,9 +83,9 @@ function renderDonutFromDB(categories){
   }).join("");
 }
 
-function renderTopStreaksFromDB(streaks){
+function renderTopStreaksFromDB(streaks) {
   const c = document.getElementById("top-streaks");
-  if(!c || !streaks) return;
+  if (!c || !streaks) return;
   c.innerHTML = streaks.map((h, i) => `
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
       <div style="font-weight:700;width:20px">${i + 1}</div>
@@ -98,18 +100,18 @@ function renderTopStreaksFromDB(streaks){
     </div>`).join("");
 }
 
-function renderTimeChartFromDB(data){
+function renderTimeChartFromDB(data) {
   const pct = data.completionRate || 0;
   const slots = [
-    {label:"6–9 AM",  pct: pct + 10, color:"#7c3aed"},
-    {label:"9–12 PM", pct: pct - 5,  color:"#3b82f6"},
-    {label:"12–3 PM", pct: pct - 15, color:"#06b6d4"},
-    {label:"3–6 PM",  pct: pct - 8,  color:"#22c55e"},
-    {label:"6–9 PM",  pct: pct + 4,  color:"#f59e0b"},
-    {label:"9–12 AM", pct: pct - 20, color:"#ec4899"},
-  ].map(s => ({...s, pct: Math.max(0, Math.min(100, s.pct))}));
+    { label: "6–9 AM", pct: pct + 10, color: "#7c3aed" },
+    { label: "9–12 PM", pct: pct - 5, color: "#3b82f6" },
+    { label: "12–3 PM", pct: pct - 15, color: "#06b6d4" },
+    { label: "3–6 PM", pct: pct - 8, color: "#22c55e" },
+    { label: "6–9 PM", pct: pct + 4, color: "#f59e0b" },
+    { label: "9–12 AM", pct: pct - 20, color: "#ec4899" },
+  ].map(s => ({ ...s, pct: Math.max(0, Math.min(100, s.pct)) }));
   const c = document.getElementById("time-chart");
-  if(!c) return;
+  if (!c) return;
   c.innerHTML = slots.map(s => `
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
       <div style="font-size:11px;color:var(--muted);font-weight:600;width:60px">${s.label}</div>
@@ -125,14 +127,14 @@ function renderTimeChartFromDB(data){
 ══════════════════════════════════════ */
 window._analyticsProgressData = null;
 
-function renderAnalyticsProgressChart(heatmap){
+function renderAnalyticsProgressChart(heatmap) {
   const days = [];
-  for(let i = 29; i >= 0; i--){
-    const d     = new Date();
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date();
     d.setDate(d.getDate() - i);
-    const key   = d.toISOString().split("T")[0];
+    const key = d.toISOString().split("T")[0];
     const label = i % 5 === 0
-      ? d.toLocaleDateString("en-US", {month:"short", day:"numeric"})
+      ? d.toLocaleDateString("en-US", { month: "short", day: "numeric" })
       : "";
     days.push({
       label,
@@ -147,52 +149,52 @@ function renderAnalyticsProgressChart(heatmap){
   drawAnalyticsChart(days, "completions");
 }
 
-function switchAnalyticsChart(mode, btn){
+function switchAnalyticsChart(mode, btn) {
   document.querySelectorAll("#page-analytics .chart-tab").forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
-  if(window._analyticsProgressData) drawAnalyticsChart(window._analyticsProgressData, mode);
+  if (window._analyticsProgressData) drawAnalyticsChart(window._analyticsProgressData, mode);
 }
 
-function drawAnalyticsChart(days, mode){
+function drawAnalyticsChart(days, mode) {
   const container = document.getElementById("analytics-progress-chart");
-  const legend    = document.getElementById("analytics-progress-legend");
-  if(!container) return;
+  const legend = document.getElementById("analytics-progress-legend");
+  if (!container) return;
 
   const values = days.map(d => d[mode]);
-  const max    = Math.max(...values, 1);
+  const max = Math.max(...values, 1);
   const colors = {
-    completions: ["#7c3aed","#3b82f6"],
-    rate:        ["#22c55e","#06b6d4"]
+    completions: ["#7c3aed", "#3b82f6"],
+    rate: ["#22c55e", "#06b6d4"]
   };
   const labels = { completions: "Habits Completed", rate: "Completion Rate (%)" };
   const [c1, c2] = colors[mode] || colors.completions;
 
-  const W      = container.clientWidth || 700;
-  const H      = 190;
-  const PAD_L  = 36, PAD_R = 12, PAD_T = 16, PAD_B = 28;
+  const W = container.clientWidth || 700;
+  const H = 190;
+  const PAD_L = 36, PAD_R = 12, PAD_T = 16, PAD_B = 28;
   const chartW = W - PAD_L - PAD_R;
   const chartH = H - PAD_T - PAD_B;
 
   const pts = days.map((d, i) => ({
-    x:     PAD_L + (i / (days.length - 1)) * chartW,
-    y:     PAD_T + chartH - (values[i] / max) * chartH,
-    val:   values[i],
+    x: PAD_L + (i / (days.length - 1)) * chartW,
+    y: PAD_T + chartH - (values[i] / max) * chartH,
+    val: values[i],
     label: d.label
   }));
 
-  function smooth(pts){
-    if(pts.length < 2) return `M${pts[0].x},${pts[0].y}`;
+  function smooth(pts) {
+    if (pts.length < 2) return `M${pts[0].x},${pts[0].y}`;
     let path = `M${pts[0].x},${pts[0].y}`;
-    for(let i = 0; i < pts.length - 1; i++){
-      const cx = (pts[i].x + pts[i+1].x) / 2;
-      path += ` C${cx},${pts[i].y} ${cx},${pts[i+1].y} ${pts[i+1].x},${pts[i+1].y}`;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const cx = (pts[i].x + pts[i + 1].x) / 2;
+      path += ` C${cx},${pts[i].y} ${cx},${pts[i + 1].y} ${pts[i + 1].x},${pts[i + 1].y}`;
     }
     return path;
   }
 
   const linePath = smooth(pts);
   const areaPath = linePath
-    + ` L${pts[pts.length-1].x},${PAD_T + chartH} L${pts[0].x},${PAD_T + chartH} Z`;
+    + ` L${pts[pts.length - 1].x},${PAD_T + chartH} L${pts[0].x},${PAD_T + chartH} Z`;
 
   const yLabels = [0, Math.round(max / 2), max].map(v => ({
     v, y: PAD_T + chartH - (v / max) * chartH
@@ -224,12 +226,12 @@ function drawAnalyticsChart(days, mode){
       `).join("")}
     </svg>`;
 
-  if(legend) legend.innerHTML = `
+  if (legend) legend.innerHTML = `
     <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)">
       <div style="width:24px;height:3px;border-radius:2px;background:linear-gradient(90deg,${c1},${c2})"></div>
       ${labels[mode]} — Last 30 days
     </div>
     <div style="margin-left:auto;font-size:12px;color:var(--muted)">
-      Total: <strong style="color:var(--text)">${values.reduce((a,b)=>a+b,0)}${mode==="rate"?"% avg":""}</strong>
+      Total: <strong style="color:var(--text)">${values.reduce((a, b) => a + b, 0)}${mode === "rate" ? "% avg" : ""}</strong>
     </div>`;
 }

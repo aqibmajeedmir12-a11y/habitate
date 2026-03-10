@@ -10,14 +10,14 @@
 /* ══════════════════════════════════════
    FEATURE 1 — RELAPSE RECOVERY ENGINE
 ══════════════════════════════════════ */
-async function checkRecovery(){
+async function checkRecovery() {
   const banner = document.getElementById("recovery-banner");
-  if(!banner) return;
-  try{
-    const res  = await fetch(`${API_BASE}/api/features/recovery-check`);
+  if (!banner) return;
+  try {
+    const res = await fetchAuth(`${API_BASE}/api/features/recovery-check`);
     const data = await res.json();
 
-    if(!data.triggered){
+    if (!data.triggered) {
       banner.style.display = "none";
       return;
     }
@@ -49,12 +49,12 @@ async function checkRecovery(){
           </div>
         </div>
       </div>`;
-  } catch(err){
+  } catch (err) {
     console.error("Recovery check error:", err);
   }
 }
 
-function dismissRecovery(){
+function dismissRecovery() {
   document.getElementById("recovery-banner").style.display = "none";
   showToast("💪 Let's get that micro-win! Pick one habit and do it now.");
   goTo("habits");
@@ -63,11 +63,11 @@ function dismissRecovery(){
 /* ══════════════════════════════════════
    FEATURE 2 — CONTEXT-AWARE CUE ENGINE
 ══════════════════════════════════════ */
-async function renderSmartSchedule(){
+async function renderSmartSchedule() {
   const container = document.getElementById("smart-schedule-card");
-  if(!container) return;
-  try{
-    const res  = await fetch(`${API_BASE}/api/features/smart-schedule`);
+  if (!container) return;
+  try {
+    const res = await fetchAuth(`${API_BASE}/api/features/smart-schedule`);
     const data = await res.json();
 
     container.innerHTML = `
@@ -81,10 +81,10 @@ async function renderSmartSchedule(){
       <div style="font-size:12px;color:var(--muted);margin-bottom:14px">
         Best times to complete habits based on your history
       </div>
-      ${data.windows.map((w, i) => `
-        <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:11px;background:rgba(255,255,255,.03);border:1px solid var(--border);margin-bottom:8px;${i===0?'border-color:rgba(124,58,237,.4);background:rgba(124,58,237,.06)':''}">
+      ${data.windows && data.windows.length > 0 ? data.windows.map((w, i) => `
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:11px;background:rgba(255,255,255,.03);border:1px solid var(--border);margin-bottom:8px;${i === 0 ? 'border-color:rgba(124,58,237,.4);background:rgba(124,58,237,.06)' : ''}">
           <div style="font-size:18px;width:36px;height:36px;background:rgba(255,255,255,.06);border-radius:9px;display:flex;align-items:center;justify-content:center">
-            ${i===0?"⭐":i===1?"🔥":"✅"}
+            ${i === 0 ? "⭐" : i === 1 ? "🔥" : "✅"}
           </div>
           <div style="flex:1">
             <div style="font-size:13px;font-weight:600">${w.label}</div>
@@ -94,12 +94,16 @@ async function renderSmartSchedule(){
             <div style="font-size:14px;font-weight:800;color:var(--purple-light)">${w.time}</div>
             <div style="font-size:10px;color:var(--green)">${w.score}% match</div>
           </div>
-        </div>`).join("")}
-      ${data.nextWindow ? `
+        </div>`).join("") : `
+        <div style="padding:20px;text-align:center;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid var(--border);font-size:12px;color:var(--muted)">
+           📊 Complete more habits to gather data and reveal your personalized Smart Schedule.
+        </div>
+        `}
+      ${data.nextWindow && data.windows.length > 0 ? `
         <div style="margin-top:12px;padding:10px 14px;border-radius:10px;background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.25);font-size:12px;color:var(--cyan)">
           ⏭️ <strong>Smart Snooze:</strong> Next best window is at <strong>${data.nextWindow.time}</strong>
         </div>` : ""}`;
-  } catch(err){
+  } catch (err) {
     console.error("Smart schedule error:", err);
   }
 }
@@ -107,11 +111,11 @@ async function renderSmartSchedule(){
 /* ══════════════════════════════════════
    FEATURE 3 — PRIVACY-FIRST MODE
 ══════════════════════════════════════ */
-async function renderPrivacyAudit(){
+async function renderPrivacyAudit() {
   const container = document.getElementById("privacy-audit-card");
-  if(!container) return;
-  try{
-    const res  = await fetch(`${API_BASE}/api/features/privacy-audit`);
+  if (!container) return;
+  try {
+    const res = await fetchAuth(`${API_BASE}/api/features/privacy-audit`);
     const data = await res.json();
 
     container.innerHTML = `
@@ -147,35 +151,35 @@ async function renderPrivacyAudit(){
         <div style="font-size:12px;color:var(--green);font-weight:600">☁️ Cloud Sync</div>
         <div style="display:flex;align-items:center;gap:8px">
           <span style="font-size:11px;color:var(--muted)">${data.cloudSync ? "Enabled" : "Disabled (privacy default)"}</span>
-          <div style="width:36px;height:20px;border-radius:10px;background:${data.cloudSync?"var(--green)":"rgba(255,255,255,.1)"};cursor:pointer;position:relative;transition:.3s" onclick="toggleCloudSync(this)">
-            <div style="width:16px;height:16px;background:white;border-radius:50%;position:absolute;top:2px;left:${data.cloudSync?"18px":"2px"};transition:.3s"></div>
+          <div style="width:36px;height:20px;border-radius:10px;background:${data.cloudSync ? "var(--green)" : "rgba(255,255,255,.1)"};cursor:pointer;position:relative;transition:.3s" onclick="toggleCloudSync(this)">
+            <div style="width:16px;height:16px;background:white;border-radius:50%;position:absolute;top:2px;left:${data.cloudSync ? "18px" : "2px"};transition:.3s"></div>
           </div>
         </div>
       </div>
       <div style="font-size:10px;color:var(--muted);margin-top:10px">Last audit: ${new Date(data.lastAudit).toLocaleString()}</div>`;
-  } catch(err){
+  } catch (err) {
     console.error("Privacy audit error:", err);
   }
 }
 
-function toggleCloudSync(el){
+function toggleCloudSync(el) {
   showToast("☁️ Cloud sync coming in a future update — your data is local & safe.");
 }
 
 /* ══════════════════════════════════════
    FEATURE 4 — ADAPTIVE MOTIVATION SYSTEM
 ══════════════════════════════════════ */
-async function renderMotivationStyle(){
+async function renderMotivationStyle() {
   const container = document.getElementById("motivation-style-card");
-  if(!container) return;
-  try{
-    const res  = await fetch(`${API_BASE}/api/features/motivation-style`);
+  if (!container) return;
+  try {
+    const res = await fetchAuth(`${API_BASE}/api/features/motivation-style`);
     const data = await res.json();
 
     const styleColors = {
-      gamified:  { bg: "rgba(245,158,11,.08)", border: "rgba(245,158,11,.25)", color: "var(--amber)",  icon: "🎮" },
+      gamified: { bg: "rgba(245,158,11,.08)", border: "rgba(245,158,11,.25)", color: "var(--amber)", icon: "🎮" },
       intrinsic: { bg: "rgba(124,58,237,.08)", border: "rgba(124,58,237,.25)", color: "var(--purple-light)", icon: "🧠" },
-      mixed:     { bg: "rgba(59,130,246,.08)", border: "rgba(59,130,246,.25)", color: "var(--blue)",   icon: "⚡" }
+      mixed: { bg: "rgba(59,130,246,.08)", border: "rgba(59,130,246,.25)", color: "var(--blue)", icon: "⚡" }
     };
     const sc = styleColors[data.style] || styleColors.mixed;
 
@@ -205,7 +209,7 @@ async function renderMotivationStyle(){
         ${data.rewards.map(r => `
           <span style="padding:5px 11px;border-radius:20px;font-size:12px;font-weight:600;background:${sc.bg};color:${sc.color};border:1px solid ${sc.border}">${r}</span>`).join("")}
       </div>`;
-  } catch(err){
+  } catch (err) {
     console.error("Motivation style error:", err);
   }
 }
@@ -213,14 +217,14 @@ async function renderMotivationStyle(){
 /* ══════════════════════════════════════
    FEATURE 5 — AUTO-DETECT & CONFIRM
 ══════════════════════════════════════ */
-async function renderAutoSuggest(){
+async function renderAutoSuggest() {
   const container = document.getElementById("auto-suggest-card");
-  if(!container) return;
-  try{
-    const res  = await fetch(`${API_BASE}/api/features/auto-suggest`);
+  if (!container) return;
+  try {
+    const res = await fetchAuth(`${API_BASE}/api/features/auto-suggest`);
     const data = await res.json();
 
-    if(!data.suggestions.length){
+    if (!data.suggestions.length) {
       container.innerHTML = `
         <div class="card-header">
           <div class="card-title">
@@ -262,20 +266,20 @@ async function renderAutoSuggest(){
             </button>
           </div>
         </div>`).join("")}`;
-  } catch(err){
+  } catch (err) {
     console.error("Auto-suggest error:", err);
   }
 }
 
-async function confirmAutoHabit(id, btn){
-  btn.disabled    = true;
+async function confirmAutoHabit(id, btn) {
+  btn.disabled = true;
   btn.textContent = "✓";
-  try{
-    await fetch(`${API_BASE}/api/habits/${id}`, { method: "PUT", headers: {"Content-Type":"application/json"}, body: JSON.stringify({}) });
+  try {
+    await fetchAuth(`${API_BASE}/api/habits/${id}`, { method: "PUT", body: JSON.stringify({}) });
     await loadHabitsFromDB();
     showToast("🤖 Auto-confirmed! +10 XP");
     setTimeout(() => renderAutoSuggest(), 600);
-  } catch(err){
+  } catch (err) {
     showToast("❌ Could not confirm habit");
   }
 }
@@ -283,7 +287,8 @@ async function confirmAutoHabit(id, btn){
 /* ══════════════════════════════════════
    INIT — call all 5 features on load
 ══════════════════════════════════════ */
-async function initFeatures(){
+async function initFeatures() {
+  // Fire sequentially instead of Promise.all to prevent Groq API 429 Rate Limiting
   await checkRecovery();
   await renderSmartSchedule();
   await renderPrivacyAudit();

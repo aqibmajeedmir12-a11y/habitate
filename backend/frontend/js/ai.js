@@ -3,14 +3,14 @@
 ══════════════════════════════════════ */
 
 /* ─── ACHIEVEMENTS ─── */
-async function renderAchievements(){
-  try{
-    const resHabits = await fetch(`${API_BASE}/api/habits`);
+async function renderAchievements() {
+  try {
+    const resHabits = await fetchAuth(`${API_BASE}/api/habits`);
     const habitsData = await resHabits.json();
     const maxStreak = Math.max(0, ...habitsData.map(h => h.streak || 0));
 
     const grid = document.getElementById("ach-grid");
-    if(!grid) return;
+    if (!grid) return;
 
     let unlockedCount = 0;
     let totalXP = 0;
@@ -18,7 +18,7 @@ async function renderAchievements(){
     grid.innerHTML = window.achievements.map(a => {
       const unlocked = maxStreak >= (a.requiredStreak || 9999);
       const progress = Math.min((maxStreak / (a.requiredStreak || 1)) * 100, 100);
-      if(unlocked){ unlockedCount++; totalXP += a.xp || 0; }
+      if (unlocked) { unlockedCount++; totalXP += a.xp || 0; }
       return `
         <div class="ach-card ${unlocked ? "unlocked" : "locked"}">
           <div class="ach-icon">${a.icon}</div>
@@ -37,34 +37,34 @@ async function renderAchievements(){
     const achLocked = document.getElementById("ach-locked");
     const achCompletion = document.getElementById("ach-completion");
     const achXp = document.getElementById("ach-xp");
-    if(achUnlocked) achUnlocked.textContent = unlockedCount;
-    if(achLocked) achLocked.textContent = lockedCount;
-    if(achCompletion) achCompletion.textContent = completion + "%";
-    if(achXp) achXp.textContent = totalXP;
-  } catch(err){
+    if (achUnlocked) achUnlocked.textContent = unlockedCount;
+    if (achLocked) achLocked.textContent = lockedCount;
+    if (achCompletion) achCompletion.textContent = completion + "%";
+    if (achXp) achXp.textContent = totalXP;
+  } catch (err) {
     console.error("Achievements error:", err);
   }
 }
 
 /* ─── SCHEDULE ─── */
-async function renderSchedule(){
-  try{
-    const res = await fetch(`${API_BASE}/api/schedule`);
+async function renderSchedule() {
+  try {
+    const res = await fetchAuth(`${API_BASE}/api/schedule`);
     const data = await res.json();
 
-    const days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+    const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
     const grid = document.getElementById("schedule-grid");
-    if(!grid) return;
+    if (!grid) return;
 
     const grouped = {};
     data.forEach(item => {
       const day = parseInt(item.weekday);
-      if(!grouped[day]) grouped[day] = [];
+      if (!grouped[day]) grouped[day] = [];
       const exists = grouped[day].some(h =>
         (item.id && h.id === item.id) ||
         (h.name === item.name && h.weekday === item.weekday)
       );
-      if(!exists) grouped[day].push(item);
+      if (!exists) grouped[day].push(item);
     });
 
     grid.innerHTML = days.map((day, i) => {
@@ -73,53 +73,53 @@ async function renderSchedule(){
         <div class="sched-day">
           <div class="sched-day-name">${day}</div>
           ${dayHabits.length
-            ? dayHabits.map(h => `<div class="sched-habit" style="background:${h.color}22;color:${h.color};border:1px solid ${h.color}55">${h.emoji} ${h.name}</div>`).join("")
-            : `<div style="font-size:11px;color:var(--muted)">No habits</div>`}
+          ? dayHabits.map(h => `<div class="sched-habit" style="background:${h.color}22;color:${h.color};border:1px solid ${h.color}55">${h.emoji} ${h.name}</div>`).join("")
+          : `<div style="font-size:11px;color:var(--muted)">No habits</div>`}
         </div>`;
     }).join("");
-  } catch(err){
+  } catch (err) {
     console.error("Schedule Load Error:", err);
   }
 }
 
 /* ─── CALENDAR — LeetCode Heatmap Style ─── */
-async function renderCalendar(){
+async function renderCalendar() {
   const container = document.getElementById("calendar-grid");
-  if(!container) return;
-  try{
-    const res  = await fetch(`${API_BASE}/api/habits/analytics/logs`);
+  if (!container) return;
+  try {
+    const res = await fetchAuth(`${API_BASE}/api/habits/analytics/logs`);
     const data = await res.json();
     const heatmap = data.heatmap || {};
 
     /* Build a full 52-week grid (364 days back from today) */
-    const today    = new Date();
-    const DAY_MS   = 86400000;
-    const WEEKS    = 52;
-    const COLS     = WEEKS;
+    const today = new Date();
+    const DAY_MS = 86400000;
+    const WEEKS = 52;
+    const COLS = WEEKS;
 
     /* Go back to the nearest Sunday */
     const startDate = new Date(today);
     startDate.setDate(startDate.getDate() - (WEEKS * 7 - 1));
 
     /* Day labels */
-    const dayLabels = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
     /* Month labels — collect which col each month starts */
-    const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-    const monthCols  = {};
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const monthCols = {};
 
     /* Build all cells grouped by week column */
     const weeks = [];
-    for(let w = 0; w < COLS; w++){
+    for (let w = 0; w < COLS; w++) {
       const week = [];
-      for(let d = 0; d < 7; d++){
-        const date    = new Date(startDate.getTime() + (w * 7 + d) * DAY_MS);
+      for (let d = 0; d < 7; d++) {
+        const date = new Date(startDate.getTime() + (w * 7 + d) * DAY_MS);
         const dateStr = date.toISOString().split("T")[0];
-        const count   = heatmap[dateStr] || 0;
+        const count = heatmap[dateStr] || 0;
         const isFuture = date > today;
 
         /* Track month label position */
-        if(date.getDate() === 1){
+        if (date.getDate() === 1) {
           monthCols[w] = monthNames[date.getMonth()];
         }
 
@@ -129,11 +129,11 @@ async function renderCalendar(){
     }
 
     /* Intensity levels (0-4) like LeetCode */
-    function getLevel(count){
-      if(count === 0) return 0;
-      if(count === 1) return 1;
-      if(count <= 3)  return 2;
-      if(count <= 6)  return 3;
+    function getLevel(count) {
+      if (count === 0) return 0;
+      if (count === 1) return 1;
+      if (count <= 3) return 2;
+      if (count <= 6) return 3;
       return 4;
     }
 
@@ -170,19 +170,19 @@ async function renderCalendar(){
             ${weeks.map(week => `
               <div class="heatmap-col">
                 ${week.map(cell => {
-                  const level = cell.isFuture ? 0 : getLevel(cell.count);
-                  const label = cell.date.toLocaleDateString("en-US",{weekday:"short",year:"numeric",month:"short",day:"numeric"});
-                  const tip   = cell.count > 0
-                    ? `${label} · ${cell.count} habit${cell.count>1?"s":""} completed`
-                    : cell.isFuture
-                      ? label
-                      : `${label} · No habits completed`;
-                  return `<div
+      const level = cell.isFuture ? 0 : getLevel(cell.count);
+      const label = cell.date.toLocaleDateString("en-US", { weekday: "short", year: "numeric", month: "short", day: "numeric" });
+      const tip = cell.count > 0
+        ? `${label} · ${cell.count} habit${cell.count > 1 ? "s" : ""} completed`
+        : cell.isFuture
+          ? label
+          : `${label} · No habits completed`;
+      return `<div
                     class="heatmap-cell"
-                    style="background:${levelColors[level]};${cell.isFuture?"opacity:.25":""}"
+                    style="background:${levelColors[level]};${cell.isFuture ? "opacity:.25" : ""}"
                     data-tip="${tip}"
                   ></div>`;
-                }).join("")}
+    }).join("")}
               </div>
             `).join("")}
           </div>
@@ -201,7 +201,7 @@ async function renderCalendar(){
         <!-- Stats row -->
         <div class="heatmap-stats">
           <div class="heatmap-stat">
-            <span class="heatmap-stat-val" id="hm-total">${Object.values(heatmap).reduce((a,b)=>a+b,0)}</span>
+            <span class="heatmap-stat-val" id="hm-total">${Object.values(heatmap).reduce((a, b) => a + b, 0)}</span>
             <span class="heatmap-stat-label">Total completions</span>
           </div>
           <div class="heatmap-stat">
@@ -209,19 +209,29 @@ async function renderCalendar(){
             <span class="heatmap-stat-label">Active days</span>
           </div>
           <div class="heatmap-stat">
-            <span class="heatmap-stat-val" id="hm-streak">${(()=>{
-              const sorted = Object.keys(heatmap).sort();
-              let best=0,cur=0,prev=null;
-              sorted.forEach(d=>{
-                if(prev){
-                  const diff=(new Date(d)-new Date(prev))/86400000;
-                  cur = diff===1 ? cur+1 : 1;
-                } else { cur=1; }
-                best=Math.max(best,cur);
-                prev=d;
-              });
-              return best;
-            })()}</span>
+            <span class="heatmap-stat-val" id="hm-streak">${(() => {
+        const sortedDates = Object.keys(heatmap).sort();
+        if (sortedDates.length === 0) return 0;
+        let maxStreak = 1;
+        let currentStreak = 1;
+
+        for (let i = 1; i < sortedDates.length; i++) {
+          const date1 = new Date(sortedDates[i - 1]);
+          const date2 = new Date(sortedDates[i]);
+
+          // Calculate difference in whole days
+          const diffTime = Math.abs(date2 - date1);
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+          if (diffDays === 1) {
+            currentStreak++;
+            maxStreak = Math.max(maxStreak, currentStreak);
+          } else {
+            currentStreak = 1;
+          }
+        }
+        return maxStreak;
+      })()}</span>
             <span class="heatmap-stat-label">Best streak</span>
           </div>
         </div>
@@ -231,22 +241,22 @@ async function renderCalendar(){
     const tooltip = document.getElementById("heatmap-tooltip");
     document.querySelectorAll(".heatmap-cell").forEach(cell => {
       cell.addEventListener("mouseenter", e => {
-        tooltip.textContent  = cell.dataset.tip;
+        tooltip.textContent = cell.dataset.tip;
         tooltip.style.opacity = "1";
         tooltip.style.visibility = "visible";
       });
       cell.addEventListener("mousemove", e => {
-        const wrap  = container.querySelector(".heatmap-wrap").getBoundingClientRect();
+        const wrap = container.querySelector(".heatmap-wrap").getBoundingClientRect();
         tooltip.style.left = (e.clientX - wrap.left + 12) + "px";
-        tooltip.style.top  = (e.clientY - wrap.top  - 36) + "px";
+        tooltip.style.top = (e.clientY - wrap.top - 36) + "px";
       });
       cell.addEventListener("mouseleave", () => {
-        tooltip.style.opacity    = "0";
+        tooltip.style.opacity = "0";
         tooltip.style.visibility = "hidden";
       });
     });
 
-  } catch(err){
+  } catch (err) {
     console.error("Calendar error:", err);
     container.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:20px">Unable to load heatmap.</div>';
   }

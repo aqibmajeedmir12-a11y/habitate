@@ -4,41 +4,60 @@ require("dotenv").config();
 
 
 
-/* ═════════ OLLAMA CALL FUNCTION ═════════ */
 
-async function callOllama(prompt){
 
-  const response = await fetch(
-    "http://localhost:11434/api/generate",
-    {
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify({
-        model:"phi3",
-        prompt:prompt,
-        stream:false
-      })
+// Re-use Gemini logic from the previous AI integration success
+async function callOllama(prompt, retries = 2) {
+  try {
+    const OLLAMA_URL = process.env.OLLAMA_URL || "http://localhost:11434/api/generate";
+    const OLLAMA_MODEL = process.env.OLLAMA_MODEL || "llama3";
+    const OLLAMA_API_KEY = process.env.OLLAMA_API_KEY;
+
+    const headers = { "Content-Type": "application/json" };
+    if (OLLAMA_API_KEY) {
+      headers["Authorization"] = `Bearer ${OLLAMA_API_KEY}`;
     }
-  );
 
-  const data = await response.json();
+    const response = await fetch(OLLAMA_URL, {
+      method: "POST",
+      headers: headers,
+      body: JSON.stringify({
+        model: OLLAMA_MODEL,
+        prompt: prompt,
+        stream: false
+      })
+    });
 
-  return data.response || "AI not responding.";
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.response;
+  } catch (e) {
+    if (retries > 0) {
+      console.warn(`Ollama API Error. Retrying in 2.5s... (${retries} retries left)`);
+      await new Promise(resolve => setTimeout(resolve, 2500));
+      return await callOllama(prompt, retries - 1);
+    }
+    console.error("Ollama API Error:", e.message || e);
+    return "AI not responding.";
+  }
 }
+
+
 
 
 
 /* ═════════ DAILY INSIGHTS ═════════ */
 
-router.post("/insights", async (req,res)=>{
+router.post("/insights", async (req, res) => {
 
-  try{
+  try {
 
     const habits = req.body.habits || [];
 
-    const text = habits.map(h=>
+    const text = habits.map(h =>
       `${h.name} - streak ${h.streak} - done ${h.done}`
     ).join("\n");
 
@@ -55,8 +74,8 @@ Give productivity insights and improvements.
 
     res.json({ reply });
 
-  }catch(err){
-    res.json({ reply:"AI error." });
+  } catch (err) {
+    res.json({ reply: "AI error." });
   }
 
 });
@@ -65,14 +84,14 @@ Give productivity insights and improvements.
 
 /* ═════════ DAILY MOTIVATION ═════════ */
 
-router.post("/motivation", async (req,res)=>{
+router.post("/motivation", async (req, res) => {
 
-  try{
+  try {
 
     const habits = req.body.habits || [];
 
-    const text = habits.map(h=>
-      `${h.name} (${h.done?"Done":"Pending"})`
+    const text = habits.map(h =>
+      `${h.name} (${h.done ? "Done" : "Pending"})`
     ).join(", ");
 
 
@@ -87,8 +106,8 @@ ${text}
 
     res.json({ line });
 
-  }catch(err){
-    res.json({ line:"Stay consistent — success follows discipline." });
+  } catch (err) {
+    res.json({ line: "Stay consistent — success follows discipline." });
   }
 
 });
@@ -97,9 +116,9 @@ ${text}
 
 /* ═════════ AI CHATBOT ═════════ */
 
-router.post("/chat", async (req,res)=>{
+router.post("/chat", async (req, res) => {
 
-  try{
+  try {
 
     const message = req.body.message || "Hello";
 
@@ -116,17 +135,17 @@ Reply shortly with motivation or guidance.
 
     res.json({ reply });
 
-  }catch(err){
-    res.json({ reply:"AI chatbot error." });
+  } catch (err) {
+    res.json({ reply: "AI chatbot error." });
   }
 
 });
 
-router.post("/predict", async (req,res)=>{
+router.post("/predict", async (req, res) => {
 
   const habits = req.body.habits;
 
-  const text = habits.map(h=>
+  const text = habits.map(h =>
     `${h.name} streak ${h.streak}`
   ).join(", ");
 
@@ -142,14 +161,14 @@ ${text}
 
 });
 
-router.post("/planner", async (req,res)=>{
+router.post("/planner", async (req, res) => {
 
   const goal = req.body.goal;
 
   const prompt = `
-Create 5 daily habits to achieve:
-
-${goal}
+Create 5 daily habits to achieve: ${goal}. 
+Return the response strictly as a bulleted markdown list using the * character. 
+Keep each line under 20 words.
 `;
 
   const reply = await callOllama(prompt);
@@ -166,12 +185,17 @@ router.get("/insights", async (req, res) => {
   try {
     const data = req.query.data || "No habit data";
 
-    // Dummy AI response (replace with real AI later)
-    const insights = `
-      Based on your habits:
-      • Improve consistency
-      • Avoid streak breaks
-      • Focus on daily completion
+    const prompt = `
+      Based on the following user habit statistics, generate three insightful bullet points combining analytical rigor with approachable advice. 
+      Keep each bullet under 10 words. Ensure the tone is very brief.
+      User Data: ${data}
+    `;
+    const aiResponse = await callOllama(prompt);
+
+    const insights = aiResponse || `
+      • Improve consistency routines
+      • Avoid weekend streak breaks
+      • Focus on early completions
     `;
 
     res.json({ insights });

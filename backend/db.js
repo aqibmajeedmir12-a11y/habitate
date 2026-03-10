@@ -21,17 +21,29 @@ function initTables() {
 
   db.serialize(() => {
 
+    /* ── users ── */
+    db.run(`
+      CREATE TABLE IF NOT EXISTS users (
+        id       INTEGER PRIMARY KEY AUTOINCREMENT,
+        name     TEXT    NOT NULL,
+        email    TEXT    NOT NULL UNIQUE,
+        password TEXT    NOT NULL
+      )
+    `);
+
     /* ── habits ── */
     db.run(`
       CREATE TABLE IF NOT EXISTS habits (
         id       INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id  INTEGER NOT NULL,
         name     TEXT    NOT NULL,
         emoji    TEXT,
         color    TEXT,
         category TEXT    DEFAULT 'General',
         time     TEXT    DEFAULT 'Anytime',
         streak   INTEGER DEFAULT 0,
-        done     INTEGER DEFAULT 0
+        done     INTEGER DEFAULT 0,
+        FOREIGN KEY (user_id) REFERENCES users(id)
       )
     `);
 
@@ -41,10 +53,12 @@ function initTables() {
     db.run(`
       CREATE TABLE IF NOT EXISTS habit_logs (
         id         INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id    INTEGER NOT NULL,
         habit_id   INTEGER NOT NULL,
         date       TEXT    NOT NULL,
         completed  INTEGER DEFAULT 1,
         UNIQUE(habit_id, date),
+        FOREIGN KEY (user_id) REFERENCES users(id),
         FOREIGN KEY (habit_id) REFERENCES habits(id)
       )
     `);
@@ -55,9 +69,11 @@ function initTables() {
     db.run(`
       CREATE TABLE IF NOT EXISTS habit_schedule (
         id        INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id   INTEGER NOT NULL,
         habit_id  INTEGER NOT NULL,
         weekday   INTEGER NOT NULL,   -- 0 = Monday … 6 = Sunday
         UNIQUE(habit_id, weekday),
+        FOREIGN KEY (user_id) REFERENCES users(id),
         FOREIGN KEY (habit_id) REFERENCES habits(id)
       )
     `);
@@ -65,44 +81,36 @@ function initTables() {
     /* ── settings ── */
     db.run(`
       CREATE TABLE IF NOT EXISTS settings (
-        id        INTEGER PRIMARY KEY,
-        name      TEXT    DEFAULT 'Alex Johnson',
+        user_id   INTEGER PRIMARY KEY,
+        name      TEXT,
         dailyGoal INTEGER DEFAULT 6,
         notif     INTEGER DEFAULT 1,
         streak    INTEGER DEFAULT 1,
         email     INTEGER DEFAULT 0,
         ach       INTEGER DEFAULT 1,
-        quotes    INTEGER DEFAULT 1
+        quotes    INTEGER DEFAULT 1,
+        FOREIGN KEY (user_id) REFERENCES users(id)
       )
     `);
 
-    /* ── user_stats ──
-       Insert the seed row so XP reads never return null. */
+    /* ── user_stats ── */
     db.run(`
       CREATE TABLE IF NOT EXISTS user_stats (
-        id    INTEGER PRIMARY KEY,
-        xp    INTEGER DEFAULT 0,
-        level INTEGER DEFAULT 1
+        user_id INTEGER PRIMARY KEY,
+        xp      INTEGER DEFAULT 0,
+        level   INTEGER DEFAULT 1,
+        FOREIGN KEY (user_id) REFERENCES users(id)
       )
     `);
 
+    /* ── ai_cache ── */
     db.run(`
-      INSERT OR IGNORE INTO user_stats (id, xp, level)
-      VALUES (1, 0, 1)
+      CREATE TABLE IF NOT EXISTS ai_cache (
+        prompt    TEXT PRIMARY KEY,
+        response  TEXT,
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
     `);
-
-    /* ── auto-assign existing habits to Mon/Wed/Fri ── */
-    db.all("SELECT id FROM habits", [], (err, habits) => {
-      if (err) return;
-      habits.forEach(h => {
-        [0, 2, 4].forEach(day => {
-          db.run(
-            "INSERT OR IGNORE INTO habit_schedule (habit_id, weekday) VALUES (?, ?)",
-            [h.id, day]
-          );
-        });
-      });
-    });
 
   });
 }

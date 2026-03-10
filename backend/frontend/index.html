@@ -1,335 +1,411 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HabitAI — Full App</title>
-<!-- Font Awesome -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-<!-- App Styles -->
-<link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>HabitAI</title>
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <!-- App Styles -->
+  <link rel="stylesheet" href="css/style.css">
+  <!-- PDF Export Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
+
 <body>
 
-<!-- ─── AUTH SCREEN ─── -->
-<div class="auth-screen" id="auth-screen">
-  <div class="auth-particles-wrap" id="auth-particles"></div>
-  <div class="auth-card">
-    <div class="auth-logo">
-      <div class="auth-logo-icon">⚡</div>
-      <div class="auth-logo-text"><span>Habit</span>AI</div>
-    </div>
-
-    <div class="auth-tabs">
-      <div class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Sign In</div>
-      <div class="auth-tab" id="tab-register" onclick="switchAuthTab('register')">Create Account</div>
-    </div>
-
-    <!-- LOGIN FORM -->
-    <div class="auth-form active" id="form-login">
-      <div class="auth-error" id="login-error">Invalid email or password.</div>
-      <div class="auth-input-wrap">
-        <i class="fa fa-envelope"></i>
-        <input class="auth-input" id="login-email" type="email" placeholder="Email address" autocomplete="email">
+  <!-- ─── AUTH SCREEN ─── -->
+  <div class="auth-screen" id="auth-screen">
+    <div class="auth-particles-wrap" id="auth-particles"></div>
+    <div class="auth-card">
+      <div class="auth-logo">
+        <div class="auth-logo-icon">⚡</div>
+        <div class="auth-logo-text"><span>Habit</span>AI</div>
       </div>
-      <div class="auth-input-wrap">
-        <i class="fa fa-lock"></i>
-        <input class="auth-input" id="login-pass" type="password" placeholder="Password" autocomplete="current-password">
+
+      <div class="auth-tabs">
+        <div class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Sign In</div>
+        <div class="auth-tab" id="tab-register" onclick="switchAuthTab('register')">Create Account</div>
       </div>
-      <button class="auth-btn" onclick="doLogin()">
-        <i class="fa fa-arrow-right-to-bracket"></i> Sign In
-      </button>
-      <div class="auth-divider">or continue with</div>
-      <div class="auth-social">
-        <button class="auth-social-btn" onclick="doSocialLogin('Google')">🌐 Google</button>
-        <button class="auth-social-btn" onclick="doSocialLogin('Apple')">🍎 Apple</button>
-      </div>
-    </div>
 
-    <!-- REGISTER FORM -->
-    <div class="auth-form" id="form-register">
-      <div class="auth-error" id="reg-error">Please fill all fields.</div>
-      <div class="auth-input-wrap">
-        <i class="fa fa-user"></i>
-        <input class="auth-input" id="reg-name" type="text" placeholder="Your full name" autocomplete="name">
-      </div>
-      <div class="auth-input-wrap">
-        <i class="fa fa-envelope"></i>
-        <input class="auth-input" id="reg-email" type="email" placeholder="Email address" autocomplete="email">
-      </div>
-      <div class="auth-input-wrap">
-        <i class="fa fa-lock"></i>
-        <input class="auth-input" id="reg-pass" type="password" placeholder="Create password"
-          autocomplete="new-password" oninput="checkStrength(this.value)">
-      </div>
-      <div class="strength-bar-w"><div class="strength-bar" id="strength-bar"></div></div>
-      <div class="strength-label" id="strength-label">Password strength</div>
-      <button class="auth-btn" onclick="doRegister()">
-        <i class="fa fa-rocket"></i> Create Account
-      </button>
-      <div class="auth-divider">or continue with</div>
-      <div class="auth-social">
-        <button class="auth-social-btn" onclick="doSocialLogin('Google')">🌐 Google</button>
-        <button class="auth-social-btn" onclick="doSocialLogin('Apple')">🍎 Apple</button>
-      </div>
-    </div>
-
-  </div>
-</div><!-- /auth-screen -->
-
-<!-- ─── APP SHELL ─── -->
-<div class="app">
-
-  <!-- ─── SIDEBAR ─── -->
-  <div class="sidebar">
-    <div class="logo">
-      <div class="logo-icon">⚡</div>
-      <div class="logo-text"><span>Habit</span>AI</div>
-    </div>
-
-    <div class="nav-section">Main</div>
-    <div class="nav-item active" data-page="dashboard">
-      <i class="fa fa-home"></i><span>Dashboard</span>
-    </div>
-    <div class="nav-item" data-page="habits">
-      <i class="fa fa-list-check"></i><span>Habits</span>
-      <span class="nav-badge" id="sideHabitCount">6</span>
-    </div>
-    <div class="nav-item" data-page="analytics">
-      <i class="fa fa-chart-line"></i><span>Analytics</span>
-    </div>
-    <div class="nav-item" data-page="insights">
-      <i class="fa fa-brain"></i><span>AI Insights</span>
-      <span class="nav-badge">3</span>
-    </div>
-    <div class="nav-item" data-page="achievements">
-      <i class="fa fa-trophy"></i><span>Achievements</span>
-    </div>
-    <div class="nav-item" data-page="features">
-      <i class="fa fa-wand-magic-sparkles"></i><span>Smart Features</span>
-    </div>
-
-    <div class="nav-section">Plan</div>
-    <div class="nav-item" data-page="schedule">
-      <i class="fa fa-calendar"></i><span>Schedule</span>
-    </div>
-    <div class="nav-item" data-page="calendar">
-      <i class="fa fa-calendar-days"></i><span>Calendar</span>
-    </div>
-    <div class="nav-item" data-page="settings">
-      <i class="fa fa-gear"></i><span>Settings</span>
-    </div>
-
-    <div class="sidebar-footer">
-      <div class="user-card">
-        <div class="user-avatar">AJ</div>
-        <div>
-          <div class="user-name">Alex Johnson</div>
-          <div class="user-level">⭐ Level <span id="sideLevel">7</span> · Achiever</div>
+      <!-- LOGIN FORM -->
+      <div class="auth-form active" id="form-login">
+        <div class="auth-error" id="login-error">Invalid email or password.</div>
+        <div class="auth-input-wrap">
+          <i class="fa fa-envelope"></i>
+          <input class="auth-input" id="login-email" type="email" placeholder="Email address" autocomplete="email">
         </div>
-        <div class="icon-btn" style="margin-left:auto;width:30px;height:30px" title="Sign out" onclick="doLogout()">
-          <i class="fa fa-right-from-bracket" style="font-size:12px"></i>
+        <div class="auth-input-wrap">
+          <i class="fa fa-lock"></i>
+          <input class="auth-input" id="login-pass" type="password" placeholder="Password"
+            autocomplete="current-password">
+        </div>
+        <button class="auth-btn" onclick="doLogin()">
+          <i class="fa fa-arrow-right-to-bracket"></i> Sign In
+        </button>
+        <div class="auth-divider" id="divider-login">or continue with guaranteed real email</div>
+        <div class="auth-social" style="display:flex; justify-content:center; margin-top:10px;">
+          <!-- Manual JS Init Target -->
+          <div id="google-btn-login"></div>
         </div>
       </div>
-    </div>
-  </div><!-- /sidebar -->
 
-  <!-- ─── MAIN CONTENT ─── -->
-  <div class="main">
-
-    <!-- TOP NAVBAR -->
-    <div class="navbar">
-      <div class="navbar-left">
-        <h1 id="pageTitle">AI Habit Intelligence Dashboard</h1>
-        <p id="pageDate"></p>
+      <!-- REGISTER FORM -->
+      <div class="auth-form" id="form-register">
+        <div class="auth-error" id="reg-error">Please fill all fields.</div>
+        <div class="auth-input-wrap">
+          <i class="fa fa-user"></i>
+          <input class="auth-input" id="reg-name" type="text" placeholder="Your full name" autocomplete="name">
+        </div>
+        <div class="auth-input-wrap">
+          <i class="fa fa-envelope"></i>
+          <input class="auth-input" id="reg-email" type="email" placeholder="Email address" autocomplete="email">
+        </div>
+        <div class="auth-input-wrap">
+          <i class="fa fa-lock"></i>
+          <input class="auth-input" id="reg-pass" type="password" placeholder="Create password"
+            autocomplete="new-password" oninput="checkStrength(this.value)">
+        </div>
+        <!-- CONFIRM PASSWORD -->
+        <div class="auth-input-wrap">
+          <i class="fa fa-lock"></i>
+          <input class="auth-input" id="reg-confirm" type="password" placeholder="Confirm password"
+            autocomplete="new-password">
+        </div>
+        <div class="strength-bar-w">
+          <div class="strength-bar" id="strength-bar"></div>
+        </div>
+        <div class="strength-label" id="strength-label">Password strength</div>
+        <button class="auth-btn" id="reg-submit-btn" onclick="doRegister()">
+          <i class="fa fa-rocket"></i> Create Account
+        </button>
+        <div class="auth-divider" id="divider-reg">or continue with guaranteed real email</div>
+        <div class="auth-social" style="display:flex; justify-content:center; margin-top:10px;">
+          <!-- Manual JS Init Target -->
+          <div id="google-btn-reg"></div>
+        </div>
       </div>
-      <div class="navbar-right">
-        <div class="icon-btn" onclick="goTo('settings')">
-          <i class="fa fa-bell"></i><div class="notif-dot"></div>
+
+      <!-- OTP VERIFICATION FORM (Hidden by default) -->
+      <div class="auth-form" id="form-otp" style="display: none;">
+        <div class="auth-error" id="otp-error">Invalid code.</div>
+        <h3 style="color:var(--text);text-align:center;margin-bottom:8px">Verify Email</h3>
+        <p style="color:var(--muted);text-align:center;font-size:14px;margin-bottom:20px;line-height:1.4">
+          We've sent a 6-digit code to <b id="otp-email-lbl" style="color:var(--text)"></b>.<br>Please enter it below.
+        </p>
+        <div class="auth-input-wrap" style="justify-content:center">
+          <input class="auth-input" id="reg-otp" type="text" placeholder="• • • • • •"
+            style="text-align:center;letter-spacing:14px;font-size:24px;font-weight:700" maxlength="6">
         </div>
-        <div class="icon-btn" title="Search (Ctrl+K)" onclick="showToast('🔍 Search coming soon!')">
-          <i class="fa fa-search"></i>
+        <button class="auth-btn" id="otp-submit-btn" onclick="verifyOtp()">
+          <i class="fa fa-check-circle"></i> Verify & Login
+        </button>
+        <button class="auth-btn" style="background:rgba(255,255,255,0.05);margin-top:10px;color:var(--muted)"
+          onclick="switchAuthTab('login')">
+          Cancel
+        </button>
+      </div>
+
+    </div>
+  </div><!-- /auth-screen -->
+
+  <!-- ─── APP SHELL ─── -->
+  <div class="app">
+
+    <!-- ─── SIDEBAR ─── -->
+    <div class="sidebar">
+      <div class="logo">
+        <div class="logo-icon">⚡</div>
+        <div class="logo-text"><span>Habit</span>AI</div>
+      </div>
+
+      <div class="nav-section">Main</div>
+      <div class="nav-item active" data-page="dashboard">
+        <i class="fa fa-home"></i><span>Dashboard</span>
+      </div>
+      <div class="nav-item" data-page="habits">
+        <i class="fa fa-list-check"></i><span>Habits</span>
+        <span class="nav-badge" id="sideHabitCount">6</span>
+      </div>
+      <div class="nav-item" data-page="analytics">
+        <i class="fa fa-chart-line"></i><span>Analytics</span>
+      </div>
+      <div class="nav-item" data-page="reports">
+        <i class="fa fa-file-pdf"></i><span>Reports</span>
+      </div>
+      <div class="nav-item" data-page="insights">
+        <i class="fa fa-brain"></i><span>AI Insights</span>
+        <span class="nav-badge">3</span>
+      </div>
+      <div class="nav-item" data-page="achievements">
+        <i class="fa fa-trophy"></i><span>Achievements</span>
+      </div>
+      <div class="nav-item" data-page="features">
+        <i class="fa fa-wand-magic-sparkles"></i><span>Smart Features</span>
+      </div>
+
+      <div class="nav-section">Plan</div>
+      <div class="nav-item" data-page="schedule">
+        <i class="fa fa-calendar"></i><span>Schedule</span>
+      </div>
+      <div class="nav-item" data-page="calendar">
+        <i class="fa fa-calendar-days"></i><span>Calendar</span>
+      </div>
+      <div class="nav-item" data-page="settings">
+        <i class="fa fa-gear"></i><span>Settings</span>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="user-card">
+          <div class="user-avatar">AJ</div>
+          <div>
+            <div class="user-name">Alex Johnson</div>
+            <div class="user-level">⭐ Level <span id="sideLevel">7</span> · Achiever</div>
+          </div>
+          <div class="icon-btn" style="margin-left:auto;width:30px;height:30px" title="Sign out" onclick="doLogout()">
+            <i class="fa fa-right-from-bracket" style="font-size:12px"></i>
+          </div>
         </div>
-        <button class="btn btn-primary" onclick="openModal()">
-          <i class="fa fa-plus"></i> New Habit
+      </div>
+    </div><!-- /sidebar -->
+
+    <!-- ─── MAIN CONTENT ─── -->
+    <div class="main">
+
+      <!-- TOP NAVBAR -->
+      <div class="navbar">
+        <div class="navbar-left">
+          <h1 id="pageTitle">AI Habit Intelligence Dashboard</h1>
+          <p id="pageDate"></p>
+        </div>
+        <div class="navbar-right">
+          <div class="icon-btn" onclick="toggleNotifPanel(event)">
+            <i class="fa fa-bell"></i>
+            <div class="notif-dot"></div>
+          </div>
+          <div class="icon-btn" title="Search (Ctrl+K)" onclick="showToast('🔍 Search coming soon!')">
+            <i class="fa fa-search"></i>
+          </div>
+          <button class="btn btn-primary" onclick="openModal()">
+            <i class="fa fa-plus"></i> New Habit
+          </button>
+        </div>
+      </div>
+
+      <!-- ─── PAGE CONTENT ─── -->
+      <div class="page-content" id="page-content-wrapper">
+        <!-- Pages injected here by JavaScript -->
+      </div>
+
+    </div><!-- /main -->
+  </div><!-- /app -->
+
+  <!-- ─── ADD HABIT MODAL ─── -->
+  <div class="overlay" id="overlay" onclick="closeModalOut(event)">
+    <div class="modal">
+      <div class="modal-title">➕ <span id="modal-title-text">Add New Habit</span></div>
+      <div class="modal-sub" id="modal-sub-text">Build a new routine, one day at a time.</div>
+
+      <div class="form-group" id="quick-add-group">
+        <label class="form-label">⚡ Quick Add</label>
+        <div class="chips" id="quick-habits-container" style="margin-top:4px;"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Habit Name</label>
+        <input class="form-input" id="h-name" placeholder="e.g. Morning meditation...">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select class="form-select" id="h-cat">
+          <option value="Mind">Mind</option>
+          <option value="Health">Health</option>
+          <option value="Fitness">Fitness</option>
+          <option value="Learn">Learn</option>
+          <option value="Custom">Custom</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Time</label>
+        <input type="time" class="form-input" id="h-time" value="08:00">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Choose Days</label>
+        <div id="day-picker" style="display:flex;gap:6px;flex-wrap:wrap;">
+          <div class="day-btn" data-day="0">Mon</div>
+          <div class="day-btn" data-day="1">Tue</div>
+          <div class="day-btn" data-day="2">Wed</div>
+          <div class="day-btn" data-day="3">Thu</div>
+          <div class="day-btn" data-day="4">Fri</div>
+          <div class="day-btn" data-day="5">Sat</div>
+          <div class="day-btn" data-day="6">Sun</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Icon</label>
+        <div class="emoji-row" id="ep-row"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Color</label>
+        <div class="color-row" id="cp-row"></div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-ghost" style="flex:1" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" style="flex:2" onclick="submitHabit()">
+          <i class="fa fa-plus"></i> <span id="modal-btn-text">Add Habit</span>
         </button>
       </div>
     </div>
+  </div><!-- /overlay -->
 
-    <!-- ─── PAGE CONTENT ─── -->
-    <div class="page-content" id="page-content-wrapper">
-      <!-- Pages injected here by JavaScript -->
-    </div>
+  <!-- ─── TOAST ─── -->
+  <div class="toast" id="toast">
+    <span id="toast-icon">🎉</span>
+    <span id="toast-msg">Done!</span>
+  </div>
 
-  </div><!-- /main -->
-</div><!-- /app -->
-
-<!-- ─── ADD HABIT MODAL ─── -->
-<div class="overlay" id="overlay" onclick="closeModalOut(event)">
-  <div class="modal">
-    <div class="modal-title">➕ <span id="modal-title-text">Add New Habit</span></div>
-    <div class="modal-sub" id="modal-sub-text">Build a new routine, one day at a time.</div>
-
-    <div class="form-group">
-      <label class="form-label">Habit Name</label>
-      <input class="form-input" id="h-name" placeholder="e.g. Morning meditation...">
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">Category</label>
-      <select class="form-select" id="h-cat">
-        <option value="Mind">Mind</option>
-        <option value="Health">Health</option>
-        <option value="Fitness">Fitness</option>
-        <option value="Learn">Learn</option>
-        <option value="Custom">Custom</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">Time</label>
-      <input class="form-input" id="h-time" placeholder="e.g. 7:00 AM">
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">Choose Days</label>
-      <div id="day-picker" style="display:flex;gap:6px;flex-wrap:wrap;">
-        <div class="day-btn" data-day="0">Mon</div>
-        <div class="day-btn" data-day="1">Tue</div>
-        <div class="day-btn" data-day="2">Wed</div>
-        <div class="day-btn" data-day="3">Thu</div>
-        <div class="day-btn" data-day="4">Fri</div>
-        <div class="day-btn" data-day="5">Sat</div>
-        <div class="day-btn" data-day="6">Sun</div>
+  <!-- ─── AI NOTIFICATIONS PANEL ─── -->
+  <div class="notif-panel" id="notif-panel" onclick="event.stopPropagation()"
+    style="display:none; position:fixed; top:70px; right:24px; width:320px; background:#1b1b29; border:1px solid rgba(255,255,255,.08); border-radius:16px; z-index:1000; box-shadow:0 15px 35px rgba(0,0,0,.4); padding:18px;">
+    <div
+      style="font-size:14px; font-weight:700; display:flex; align-items:center; gap:8px; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid rgba(255,255,255,.05);">
+      <div
+        style="background:rgba(124,58,237,.15); color:var(--purple-light); width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:8px;">
+        <i class="fa fa-brain"></i>
       </div>
+      AI Insights & Alerts
     </div>
-
-    <div class="form-group">
-      <label class="form-label">Icon</label>
-      <div class="emoji-row" id="ep-row"></div>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">Color</label>
-      <div class="color-row" id="cp-row"></div>
-    </div>
-
-    <div class="modal-actions">
-      <button class="btn btn-ghost" style="flex:1" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" style="flex:2" onclick="submitHabit()">
-        <i class="fa fa-plus"></i> <span id="modal-btn-text">Add Habit</span>
-      </button>
+    <div id="notif-panel-content"
+      style="font-size:13px; color:var(--muted); display:flex; flex-direction:column; gap:10px;">
+      <!-- Rendered via JS -->
     </div>
   </div>
-</div><!-- /overlay -->
 
-<!-- ─── TOAST ─── -->
-<div class="toast" id="toast">
-  <span id="toast-icon">🎉</span>
-  <span id="toast-msg">Done!</span>
-</div>
-
-<!-- ══════════════════════════════════════
+  <!-- ══════════════════════════════════════
      SCRIPTS — load order matters
 ══════════════════════════════════════ -->
-<!-- 1. Shared state, utils, auth, router, settings -->
-<script src="/js/common.js"></script>
-<!-- 2. Page-specific renderers -->
-<script src="/js/dashboard.js"></script>
-<script src="/js/habits.js"></script>
-<script src="/js/analytics.js"></script>
-<script src="/js/insights.js"></script>
-<!-- 3. Achievements, Schedule, Calendar (ai.js) -->
-<script src="/js/ai.js"></script>
-<script src="/js/features.js"></script>
+  <!-- 1. Shared state, utils, auth, router, settings -->
+  <script src="/js/common.js"></script>
+  <!-- 2. Page-specific renderers -->
+  <script src="/js/dashboard.js"></script>
+  <script src="/js/habits.js"></script>
+  <script src="/js/analytics.js"></script>
+  <script src="/js/insights.js"></script>
+  <!-- 3. Achievements, Schedule, Calendar (ai.js) -->
+  <script src="/js/ai.js"></script>
+  <script src="/js/features.js"></script>
+  <script src="/js/reports.js"></script>
 
-<script>
-/* ══════════════════════════════════════
-   PAGE LOADER — Fetch and inject HTML partials
-   into the page-content-wrapper div at startup.
-   This preserves all page IDs (page-dashboard,
-   page-habits, etc.) that JS relies on.
-══════════════════════════════════════ */
-const PAGE_PARTS = [
-  "/pages/dashboard.html",
-  "/pages/habits.html",
-  "/pages/schedule.html",
-  "/pages/insights.html",
-  "/pages/ai.html",   /* contains analytics, achievements, calendar, settings */
-  "/pages/features.html"
-];
+  <script>
+    /* ══════════════════════════════════════
+       PAGE LOADER — Fetch and inject HTML partials
+       into the page-content-wrapper div at startup.
+       This preserves all page IDs (page-dashboard,
+       page-habits, etc.) that JS relies on.
+    ══════════════════════════════════════ */
+    const PAGE_PARTS = [
+      "/pages/dashboard.html",
+      "/pages/habits.html",
+      "/pages/schedule.html",
+      "/pages/insights.html",
+      "/pages/ai.html",   /* contains calendar, achievements, settings, analytics */
+      "/pages/features.html",
+      "/pages/reports.html"
+    ];
 
-async function loadPagePartials(){
-  const wrapper = document.getElementById("page-content-wrapper");
-  for(const url of PAGE_PARTS){
-    try{
-      const res = await fetch(url);
-      if(!res.ok) throw new Error(`Failed to load: ${url}`);
-      const html = await res.text();
-      wrapper.insertAdjacentHTML("beforeend", html);
-    } catch(err){
-      console.error("Page partial load error:", err);
+    async function loadPagePartials() {
+      const wrapper = document.getElementById("page-content-wrapper");
+      try {
+        const responses = await Promise.all(PAGE_PARTS.map(url => fetch(url)));
+        const htmls = await Promise.all(
+          responses.map((res, index) => {
+            if (!res.ok) throw new Error(`Failed to load: ${PAGE_PARTS[index]}`);
+            return res.text();
+          })
+        );
+        wrapper.insertAdjacentHTML("beforeend", htmls.join(""));
+      } catch (err) {
+        console.error("Page partial load error:", err);
+      }
+      // After all partials are injected, wire nav and init app
+      initApp();
     }
-  }
-  // After all partials are injected, wire nav and init app
-  initApp();
-}
 
-function initApp(){
-  // Wire nav item clicks
-  document.querySelectorAll(".nav-item").forEach(n => {
-    n.addEventListener("click", () => goTo(n.dataset.page));
-  });
+    function initApp() {
+      // Wire nav item clicks
+      document.querySelectorAll(".nav-item").forEach(n => {
+        n.addEventListener("click", () => goTo(n.dataset.page));
+      });
 
-  // Set current date in navbar
-  document.getElementById("pageDate").textContent =
-    new Date().toLocaleDateString("en-US", {weekday:"long", year:"numeric", month:"long", day:"numeric"});
+      // Set current date in navbar
+      document.getElementById("pageDate").textContent =
+        new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
 
-  // Create background particles
-  createParticles();
-  createAuthParticles();
+      // Create background particles
+      createParticles();
+      createAuthParticles();
 
-  // Check for existing session
-  const savedUser = localStorage.getItem("hab_user");
-  if(savedUser){
-    try{
-      const user = JSON.parse(savedUser);
-      window.currentUser = user;
-      document.getElementById("auth-screen").classList.add("hidden");
-      updateGreeting(user.name);
-    } catch(e){
-      localStorage.removeItem("hab_user");
+      // Check for existing session token via JWT
+      const savedToken = localStorage.getItem("hab_token");
+      const savedUser = localStorage.getItem("hab_user");
+
+      if (savedToken && savedUser) {
+        try {
+          const user = JSON.parse(savedUser);
+          window.currentUser = user;
+          document.getElementById("auth-screen").classList.add("hidden");
+          updateGreeting(user.name);
+        } catch (e) {
+          doLogout();
+          return;
+        }
+      } else {
+        // Force auth screen display and halt further loading
+        document.getElementById("auth-screen").classList.remove("hidden");
+        return;
+      }
+
+      // Auth keyboard shortcuts on password fields
+      document.getElementById("login-pass").addEventListener("keydown", e => {
+        if (e.key === "Enter") doLogin();
+      });
+      document.getElementById("reg-pass").addEventListener("keydown", e => {
+        if (e.key === "Enter") doRegister();
+      });
+
+      // Load data
+      loadHabitsFromDB();
+      renderSchedule();
+      loadSettings();
+      renderAchievements();
+      loadXP();
+      loadPrediction();
+      initGoogleAuth();
+
+      // Restore AI chat history
+      const savedChat = localStorage.getItem("aiChat");
+      const chatBox = document.getElementById("chat-box");
+      if (savedChat && chatBox) chatBox.innerHTML = savedChat;
+
+      // Activate the dashboard page on load
+      goTo("dashboard");
     }
-  }
 
-  // Auth keyboard shortcuts on password fields
-  document.getElementById("login-pass").addEventListener("keydown", e => {
-    if(e.key === "Enter") doLogin();
-  });
-  document.getElementById("reg-pass").addEventListener("keydown", e => {
-    if(e.key === "Enter") doRegister();
-  });
-
-  // Load data
-  loadHabitsFromDB();
-  renderSchedule();
-  loadSettings();
-  renderAchievements();
-  loadXP();
-  loadPrediction();
-
-  // Restore AI chat history
-  const savedChat = localStorage.getItem("aiChat");
-  const chatBox = document.getElementById("chat-box");
-  if(savedChat && chatBox) chatBox.innerHTML = savedChat;
-
-  // Activate the dashboard page on load
-  goTo("dashboard");
-}
-
-// Kick off partial loading on DOM ready
-document.addEventListener("DOMContentLoaded", loadPagePartials);
-</script>
+    // Kick off partial loading on DOM ready
+    document.addEventListener("DOMContentLoaded", loadPagePartials);
+  </script>
 
 </body>
+
 </html>

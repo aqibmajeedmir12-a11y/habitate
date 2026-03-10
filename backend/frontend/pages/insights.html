@@ -26,8 +26,7 @@
       <div class="card-title">🧠 AI Habit Planner</div>
     </div>
     <div style="display:flex;gap:10px;margin-bottom:15px;flex-wrap:wrap">
-      <input id="goal-input" class="form-input"
-        placeholder="Enter your goal (e.g. Get fit, Learn AI)"
+      <input id="goal-input" class="form-input" placeholder="Enter your goal (e.g. Get fit, Learn AI)"
         style="flex:1;min-width:220px;padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#fff;font-size:13px">
       <button class="btn btn-primary" onclick="generatePlan()"
         style="padding:12px 18px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px">
@@ -45,7 +44,13 @@
       <div class="card-title">🤖 HabitAI Chatbot</div>
     </div>
     <div id="chat-box" style="height:220px;overflow:auto;margin-bottom:10px;font-size:13px"></div>
-    <button class="btn btn-primary" onclick="startVoiceAI()" style="margin-bottom:10px">🎤 Talk to AI Coach</button>
+    <div style="display:flex;gap:8px;margin-bottom:10px;">
+      <button class="btn btn-primary" onclick="startVoiceAI()" style="flex:1;">🎤 Talk to AI Coach</button>
+      <button class="btn btn-ghost" onclick="clearAIChats()"
+        style="padding:6px 12px;border:1px solid rgba(255,100,100,.3);color:#ff7a7a;" title="Clear History">
+        <i class="fa fa-trash"></i> Clear
+      </button>
+    </div>
     <div style="display:flex;gap:8px">
       <input id="chat-input" class="form-input" placeholder="Ask AI coach...">
       <button class="btn btn-primary" onclick="sendChat()">Send</button>

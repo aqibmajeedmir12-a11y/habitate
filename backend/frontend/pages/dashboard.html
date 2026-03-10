@@ -11,7 +11,8 @@
   </div>
 
   <!-- FREEZE REWARD BANNER (shown when earned) -->
-  <div id="freeze-banner" style="display:none;background:linear-gradient(135deg,rgba(6,182,212,.15),rgba(59,130,246,.1));border:1px solid rgba(6,182,212,.4);border-radius:18px;padding:16px 20px;margin-bottom:18px">
+  <div id="freeze-banner"
+    style="display:none;background:linear-gradient(135deg,rgba(6,182,212,.15),rgba(59,130,246,.1));border:1px solid rgba(6,182,212,.4);border-radius:18px;padding:16px 20px;margin-bottom:18px">
   </div>
 
   <!-- STATS ROW -->
@@ -49,7 +50,8 @@
     <div class="card">
       <div class="card-header">
         <div class="card-title">
-          <div class="card-title-icon" style="background:rgba(34,197,94,.15);color:var(--green)"><i class="fa fa-check-circle"></i></div>
+          <div class="card-title-icon" style="background:rgba(34,197,94,.15);color:var(--green)"><i
+              class="fa fa-check-circle"></i></div>
           Today's Habits
         </div>
         <span class="card-action" onclick="goTo('habits')">Manage all →</span>
@@ -84,19 +86,20 @@
       <div class="card">
         <div class="card-header">
           <div class="card-title">
-            <div class="card-title-icon" style="background:rgba(59,130,246,.15);color:var(--blue)"><i class="fa fa-chart-pie"></i></div>
+            <div class="card-title-icon" style="background:rgba(59,130,246,.15);color:var(--blue)"><i
+                class="fa fa-chart-pie"></i></div>
             Productivity
           </div>
         </div>
         <div class="ring-wrap">
           <svg width="150" height="150">
-            <circle cx="75" cy="75" r="60" stroke="rgba(255,255,255,.07)" stroke-width="12" fill="none"/>
+            <circle cx="75" cy="75" r="60" stroke="rgba(255,255,255,.07)" stroke-width="12" fill="none" />
             <circle id="dash-ring" cx="75" cy="75" r="60" stroke="url(#rg1)" stroke-width="12" fill="none"
-              stroke-dasharray="377" stroke-dashoffset="377" stroke-linecap="round"/>
+              stroke-dasharray="377" stroke-dashoffset="377" stroke-linecap="round" />
             <defs>
               <linearGradient id="rg1" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#7c3aed"/>
-                <stop offset="100%" stop-color="#3b82f6"/>
+                <stop offset="0%" stop-color="#7c3aed" />
+                <stop offset="100%" stop-color="#3b82f6" />
               </linearGradient>
             </defs>
           </svg>
@@ -127,17 +130,15 @@
             <div style="font-size:11px;color:var(--muted)" class="xp-of-text">of 500 XP</div>
           </div>
         </div>
-        <div class="xp-bar-w"><div class="xp-bar-f" id="dash-xpfill" style="width:0%"></div></div>
+        <div class="xp-bar-w">
+          <div class="xp-bar-f" id="dash-xpfill" style="width:0%"></div>
+        </div>
         <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted)">
           <span style="color:var(--text);font-weight:600" id="dash-xp-text">0 XP</span>
           <span id="dash-xp-remaining">-- XP to next level</span>
         </div>
-        <div class="badge-row">
-          <div class="badge-item" title="Streak Master"><div class="be">🔥</div><p>Streak</p></div>
-          <div class="badge-item" title="Speed Runner"><div class="be">⚡</div><p>Speed</p></div>
-          <div class="badge-item" title="Focused Mind"><div class="be">🎯</div><p>Focus</p></div>
-          <div class="badge-item" title="Diamond Habit"><div class="be">💎</div><p>Diamond</p></div>
-          <div class="badge-item locked" title="Locked"><div class="be">🌟</div><p>Star</p></div>
+        <div class="badge-row" id="dash-badges-container">
+          <!-- Dynamically populated from unlocked achievements -->
         </div>
       </div>
     </div>
@@ -146,7 +147,8 @@
     <div class="card">
       <div class="card-header">
         <div class="card-title">
-          <div class="card-title-icon" style="background:rgba(124,58,237,.15);color:var(--purple-light)"><i class="fa fa-brain"></i></div>
+          <div class="card-title-icon" style="background:rgba(124,58,237,.15);color:var(--purple-light)"><i
+              class="fa fa-brain"></i></div>
           AI Insights
         </div>
         <span class="card-action" onclick="goTo('insights')">More →</span>
@@ -166,7 +168,8 @@
     <div class="card col-span-2">
       <div class="card-header">
         <div class="card-title">
-          <div class="card-title-icon" style="background:rgba(124,58,237,.15);color:var(--purple-light)"><i class="fa fa-chart-line"></i></div>
+          <div class="card-title-icon" style="background:rgba(124,58,237,.15);color:var(--purple-light)"><i
+              class="fa fa-chart-line"></i></div>
           7-Day Progress Chart
         </div>
         <div style="display:flex;gap:8px">

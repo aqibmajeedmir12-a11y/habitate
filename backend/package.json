@@ -4,7 +4,7 @@
   "description": "HabitAI Local Backend Server (SQLite + Express)",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js",
+    "start": "node server.js",
     "dev": "nodemon server.js"
   },
   "keywords": [
@@ -18,10 +18,14 @@
   "author": "Your Name",
   "license": "ISC",
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "bcryptjs": "^3.0.3",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "dotenv": "^17.3.1",
     "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.3",
+    "nodemailer": "^8.0.1",
     "openai": "^6.22.0",
     "sqlite3": "^5.1.7"
   },
