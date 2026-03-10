@@ -27,9 +27,11 @@ function initTables() {
         id       INTEGER PRIMARY KEY AUTOINCREMENT,
         name     TEXT    NOT NULL,
         email    TEXT    NOT NULL UNIQUE,
-        password TEXT    NOT NULL
+        password TEXT    NOT NULL,
+        profile_photo TEXT
       )
     `);
+    db.run("ALTER TABLE users ADD COLUMN profile_photo TEXT", (err) => { /* Ignore if exists */ });
 
     /* ── habits ── */
     db.run(`
@@ -109,6 +111,18 @@ function initTables() {
         prompt    TEXT PRIMARY KEY,
         response  TEXT,
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    /* ── chat_history ── */
+    db.run(`
+      CREATE TABLE IF NOT EXISTS chat_history (
+        id        INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id   INTEGER NOT NULL,
+        role      TEXT NOT NULL,
+        content   TEXT NOT NULL,
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id)
       )
     `);
 

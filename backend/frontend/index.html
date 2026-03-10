@@ -40,10 +40,12 @@
           <i class="fa fa-envelope"></i>
           <input class="auth-input" id="login-email" type="email" placeholder="Email address" autocomplete="email">
         </div>
-        <div class="auth-input-wrap">
+        <div class="auth-input-wrap" style="position:relative;">
           <i class="fa fa-lock"></i>
           <input class="auth-input" id="login-pass" type="password" placeholder="Password"
-            autocomplete="current-password">
+            autocomplete="current-password" style="padding-right:40px;">
+          <i class="fa fa-eye" onclick="togglePassword('login-pass', this)"
+            style="cursor:pointer; position:absolute; right:15px; color:var(--muted)"></i>
         </div>
         <button class="auth-btn" onclick="doLogin()">
           <i class="fa fa-arrow-right-to-bracket"></i> Sign In
@@ -66,16 +68,20 @@
           <i class="fa fa-envelope"></i>
           <input class="auth-input" id="reg-email" type="email" placeholder="Email address" autocomplete="email">
         </div>
-        <div class="auth-input-wrap">
+        <div class="auth-input-wrap" style="position:relative;">
           <i class="fa fa-lock"></i>
           <input class="auth-input" id="reg-pass" type="password" placeholder="Create password"
-            autocomplete="new-password" oninput="checkStrength(this.value)">
+            autocomplete="new-password" oninput="checkStrength(this.value)" style="padding-right:40px;">
+          <i class="fa fa-eye" onclick="togglePassword('reg-pass', this)"
+            style="cursor:pointer; position:absolute; right:15px; color:var(--muted)"></i>
         </div>
         <!-- CONFIRM PASSWORD -->
-        <div class="auth-input-wrap">
+        <div class="auth-input-wrap" style="position:relative;">
           <i class="fa fa-lock"></i>
           <input class="auth-input" id="reg-confirm" type="password" placeholder="Confirm password"
-            autocomplete="new-password">
+            autocomplete="new-password" style="padding-right:40px;">
+          <i class="fa fa-eye" onclick="togglePassword('reg-confirm', this)"
+            style="cursor:pointer; position:absolute; right:15px; color:var(--muted)"></i>
         </div>
         <div class="strength-bar-w">
           <div class="strength-bar" id="strength-bar"></div>
@@ -158,6 +164,9 @@
       </div>
       <div class="nav-item" data-page="settings">
         <i class="fa fa-gear"></i><span>Settings</span>
+      </div>
+      <div class="nav-item" data-page="profile">
+        <i class="fa fa-user"></i><span>Profile</span>
       </div>
 
       <div class="sidebar-footer">
@@ -306,6 +315,7 @@
   <script src="/js/ai.js"></script>
   <script src="/js/features.js"></script>
   <script src="/js/reports.js"></script>
+  <script src="/js/profile.js"></script>
 
   <script>
     /* ══════════════════════════════════════
@@ -321,7 +331,8 @@
       "/pages/insights.html",
       "/pages/ai.html",   /* contains calendar, achievements, settings, analytics */
       "/pages/features.html",
-      "/pages/reports.html"
+      "/pages/reports.html",
+      "/pages/profile.html"
     ];
 
     async function loadPagePartials() {
@@ -394,12 +405,25 @@
       initGoogleAuth();
 
       // Restore AI chat history
-      const savedChat = localStorage.getItem("aiChat");
-      const chatBox = document.getElementById("chat-box");
-      if (savedChat && chatBox) chatBox.innerHTML = savedChat;
+      if (typeof loadChatHistory === "function") loadChatHistory();
 
       // Activate the dashboard page on load
       goTo("dashboard");
+    }
+
+    function togglePassword(inputId, iconEl) {
+      const input = document.getElementById(inputId);
+      if (input.type === "password") {
+        input.type = "text";
+        iconEl.classList.remove("fa-eye");
+        iconEl.classList.add("fa-eye-slash");
+        iconEl.style.color = "var(--blue)";
+      } else {
+        input.type = "password";
+        iconEl.classList.remove("fa-eye-slash");
+        iconEl.classList.add("fa-eye");
+        iconEl.style.color = "var(--muted)";
+      }
     }
 
     // Kick off partial loading on DOM ready

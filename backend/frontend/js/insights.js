@@ -133,14 +133,38 @@ async function sendChat() {
     box.innerHTML += `<div style="margin-bottom:8px;color:var(--red)">🤖 Error connecting to AI.</div>`;
   }
   box.scrollTop = box.scrollHeight;
-  localStorage.setItem("aiChat", box.innerHTML);
 }
 
 function clearAIChats() {
   const box = document.getElementById("chat-box");
   if (box) box.innerHTML = "";
-  localStorage.removeItem("aiChat");
-  showToast("Chat history cleared!");
+  // In a robust implementation, this would also ping an API to clear the DB,
+  // but for now we just clear the view. 
+  showToast("Chat history cleared from view.");
+}
+
+async function loadChatHistory() {
+  const box = document.getElementById("chat-box");
+  if (!box) return;
+  try {
+    const res = await fetchAuth(`${API_BASE}/api/ai/chat/history`);
+    if (!res.ok) throw new Error("Load failed");
+    const history = await res.json();
+    if (history && history.length > 0) {
+      box.innerHTML = history.map(msg => {
+        if (msg.role === "user") {
+          return `<div style="margin-bottom:8px;padding:8px;background:rgba(124,58,237,.1);border-radius:8px">🧑 ${msg.content}</div>`;
+        } else {
+          return `<div style="margin-bottom:8px;padding:8px;background:rgba(59,130,246,.1);border-radius:8px">🤖 ${msg.content}</div>`;
+        }
+      }).join("");
+      box.scrollTop = box.scrollHeight;
+    } else {
+      box.innerHTML = "";
+    }
+  } catch (err) {
+    console.error("Failed to load AI chat history", err);
+  }
 }
 
 function startVoiceAI() {

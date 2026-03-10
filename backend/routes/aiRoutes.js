@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 require("dotenv").config();
+const db = require("../db");
 
 
 
@@ -116,11 +117,25 @@ ${text}
 
 /* ═════════ AI CHATBOT ═════════ */
 
-router.post("/chat", async (req, res) => {
+router.get("/chat/history", (req, res) => {
+  const userId = req.user_id;
+  db.all(
+    "SELECT role, content, timestamp FROM chat_history WHERE user_id = ? ORDER BY timestamp ASC LIMIT 50",
+    [userId],
+    (err, rows) => {
+      if (err) return res.status(500).json({ error: "Failed to fetch chat history" });
+      res.json(rows);
+    }
+  );
+});
 
+router.post("/chat", async (req, res) => {
+  const userId = req.user_id;
   try {
 
     const message = req.body.message || "Hello";
+
+    db.run("INSERT INTO chat_history (user_id, role, content) VALUES (?, ?, ?)", [userId, "user", message]);
 
     const prompt = `
 You are HabitAI — a friendly habit coach.
@@ -132,6 +147,8 @@ Reply shortly with motivation or guidance.
 `;
 
     const reply = await callOllama(prompt);
+
+    db.run("INSERT INTO chat_history (user_id, role, content) VALUES (?, ?, ?)", [userId, "ai", reply]);
 
     res.json({ reply });
 

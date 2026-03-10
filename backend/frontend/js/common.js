@@ -741,7 +741,8 @@ const pageTitles = {
   schedule: "Weekly Schedule",
   calendar: "Monthly Calendar",
   settings: "Settings",
-  features: "Smart Features"
+  features: "Smart Features",
+  profile: "User Profile"
 };
 
 function goTo(page) {
@@ -764,6 +765,7 @@ function goTo(page) {
   else if (page === "calendar") renderCalendar();
   else if (page === "settings") renderSettings();
   else if (page === "features") initFeatures();
+  else if (page === "profile") loadProfilePage();
 
   syncUserUI();
 }

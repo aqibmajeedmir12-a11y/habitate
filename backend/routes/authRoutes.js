@@ -46,7 +46,7 @@ router.post("/register", async (req, res) => {
                 otp: otpCode,
                 name: name,
                 password: hashedPassword,
-                expires: Date.now() + 10 * 60 * 1000 // 10 minutes
+                expires: Date.now() + 5 * 60 * 1000 // 5 minutes
             });
 
             // Send Email OTP

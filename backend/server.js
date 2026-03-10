@@ -11,6 +11,7 @@ const aiRoutes = require("./routes/aiRoutes");
 const xpRoutes = require("./routes/xpRoutes");
 const featuresRoutes = require("./routes/featuresRoutes");
 const authRoutes = require("./routes/authRoutes"); // New auth routes
+const profileRoutes = require("./routes/profileRoutes"); // Profile routes
 
 const JWT_SECRET = process.env.JWT_SECRET || "rehabit_super_secret_key_123!";
 
@@ -77,6 +78,7 @@ app.use("/api/schedule", authMiddleware, scheduleRoutes);
 app.use("/api/ai", authMiddleware, aiRoutes);
 app.use("/api/xp", authMiddleware, xpRoutes);
 app.use("/api/features", authMiddleware, featuresRoutes);
+app.use("/api/profile", authMiddleware, profileRoutes);
 
 /* ── FALLBACK ── */
 app.use((req, res) => {
