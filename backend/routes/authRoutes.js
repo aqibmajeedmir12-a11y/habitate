@@ -65,7 +65,9 @@ router.post("/register", async (req, res) => {
 
             transporter.sendMail(mailOptions, (error, info) => {
                 if (error) {
-                    console.log("[SMTP Fallback] Failed to send real email. Check .env credentials. Developer OTP available in terminal.");
+                    console.error("SMTP ERROR:", error);
+                } else {
+                    console.log("Email sent successfully:", info.response);
                 }
             });
 
