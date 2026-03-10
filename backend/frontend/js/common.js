@@ -1144,6 +1144,8 @@ function loginSuccess(user, token) {
 
   setTimeout(() => {
     screen.classList.add("hidden");
+    const shell = document.getElementById("app-shell");
+    if (shell) shell.style.display = "flex";
     updateGreeting(user.name);
     launchConfetti();
     showToast("🎉 Welcome, " + user.name.split(" ")[0] + "!");
@@ -1191,6 +1193,8 @@ function doLogout() {
   window.habits = [];
 
   const screen = document.getElementById("auth-screen");
+  const shell = document.getElementById("app-shell");
+  if (shell) shell.style.display = "none";
   screen.style.opacity = "0";
   screen.style.transform = "scale(1.04)";
   screen.classList.remove("hidden");

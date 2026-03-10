@@ -121,7 +121,7 @@
   </div><!-- /auth-screen -->
 
   <!-- ─── APP SHELL ─── -->
-  <div class="app">
+  <div class="app" id="app-shell" style="display:none;">
 
     <!-- ─── SIDEBAR ─── -->
     <div class="sidebar">
@@ -376,6 +376,7 @@
           const user = JSON.parse(savedUser);
           window.currentUser = user;
           document.getElementById("auth-screen").classList.add("hidden");
+          document.getElementById("app-shell").style.display = "flex";
           updateGreeting(user.name);
         } catch (e) {
           doLogout();
