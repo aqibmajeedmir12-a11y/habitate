@@ -51,7 +51,7 @@ router.post("/register", async (req, res) => {
 
             // Send Email OTP
             const mailOptions = {
-                from: '"HabitAI Auth" <noreply@habitai.com>',
+                from: `"HabitAI" <${process.env.EMAIL_USER}>`,
                 to: email,
                 subject: 'Your HabitAI Verification Code',
                 html: `<div style="font-family:sans-serif;text-align:center;padding:20px;">
