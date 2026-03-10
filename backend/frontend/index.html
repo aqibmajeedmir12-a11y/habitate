@@ -188,9 +188,14 @@
 
       <!-- TOP NAVBAR -->
       <div class="navbar">
-        <div class="navbar-left">
-          <h1 id="pageTitle">AI Habit Intelligence Dashboard</h1>
-          <p id="pageDate"></p>
+        <div class="navbar-left" style="display:flex; align-items:center; gap:10px;">
+          <div class="icon-btn mobile-menu-btn" onclick="toggleSidebar()" style="display:none; width:34px; height:34px;">
+            <i class="fa fa-bars"></i>
+          </div>
+          <div>
+            <h1 id="pageTitle">AI Habit Intelligence Dashboard</h1>
+            <p id="pageDate"></p>
+          </div>
         </div>
         <div class="navbar-right">
           <div class="icon-btn" onclick="toggleNotifPanel(event)">
@@ -356,7 +361,13 @@
     function initApp() {
       // Wire nav item clicks
       document.querySelectorAll(".nav-item").forEach(n => {
-        n.addEventListener("click", () => goTo(n.dataset.page));
+        n.addEventListener("click", () => {
+          goTo(n.dataset.page);
+          if (window.innerWidth <= 768) {
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebar) sidebar.classList.remove('show');
+          }
+        });
       });
 
       // Set current date in navbar

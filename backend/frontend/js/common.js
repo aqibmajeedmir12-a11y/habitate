@@ -956,6 +956,7 @@ async function doLogin() {
   const email = document.getElementById("login-email").value.trim();
   const pass = document.getElementById("login-pass").value;
   if (!email || !pass) { showAuthError("login", "Please enter email and password."); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showAuthError("login", "Please enter a valid email address."); return; }
 
   try {
     const res = await fetch(`${API_BASE}/api/auth/login`, {
@@ -980,6 +981,7 @@ async function doRegister() {
   const confirm = document.getElementById("reg-confirm").value;
 
   if (!name || !email || !pass || !confirm) { showAuthError("reg", "Please fill all fields."); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showAuthError("reg", "Please enter a valid email address."); return; }
   if (pass !== confirm) { showAuthError("reg", "Passwords do not match."); return; }
   if (pass.length < 6) { showAuthError("reg", "Password must be at least 6 characters."); return; }
 
@@ -1335,13 +1337,28 @@ async function toggleNotifPanel(e) {
   }
 }
 
-document.addEventListener("click", () => {
+document.addEventListener("click", (e) => {
   const panel = document.getElementById("notif-panel");
   if (panel && notifPanelOpen) {
     panel.style.display = "none";
     notifPanelOpen = false;
   }
+  
+  if (window.innerWidth <= 768) {
+    const sidebar = document.querySelector('.sidebar');
+    const menuBtn = document.querySelector('.mobile-menu-btn');
+    if (sidebar && sidebar.classList.contains('show') && !sidebar.contains(e.target) && (!menuBtn || !menuBtn.contains(e.target))) {
+      sidebar.classList.remove('show');
+    }
+  }
 });
+
+function toggleSidebar() {
+  const sidebar = document.querySelector('.sidebar');
+  if (sidebar) {
+    sidebar.classList.toggle('show');
+  }
+}
 
 async function loadDashboardStreak() {
   try {
