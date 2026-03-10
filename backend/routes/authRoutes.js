@@ -10,12 +10,12 @@ const JWT_SECRET = process.env.JWT_SECRET || "rehabit_super_secret_key_123!";
 // Temporary memory store for unverified signups (email -> { otp, name, password, expires })
 const otpStore = new Map();
 
-// Setup Nodemailer (Falls back gracefully if no real auth is provided)
+// Setup Nodemailer
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: process.env.EMAIL_USER || "demo@example.com",
-        pass: process.env.EMAIL_PASS || "demo_pass"
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
     }
 });
 

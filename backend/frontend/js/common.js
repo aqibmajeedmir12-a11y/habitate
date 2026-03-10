@@ -1344,7 +1344,7 @@ document.addEventListener("click", (e) => {
     notifPanelOpen = false;
   }
   
-  if (window.innerWidth <= 768) {
+  if (window.innerWidth <= 1024) {
     const sidebar = document.querySelector('.sidebar');
     const menuBtn = document.querySelector('.mobile-menu-btn');
     if (sidebar && sidebar.classList.contains('show') && !sidebar.contains(e.target) && (!menuBtn || !menuBtn.contains(e.target))) {

@@ -363,7 +363,7 @@
       document.querySelectorAll(".nav-item").forEach(n => {
         n.addEventListener("click", () => {
           goTo(n.dataset.page);
-          if (window.innerWidth <= 768) {
+          if (window.innerWidth <= 1024) {
             const sidebar = document.querySelector('.sidebar');
             if (sidebar) sidebar.classList.remove('show');
           }
