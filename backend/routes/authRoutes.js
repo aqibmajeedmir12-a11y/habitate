@@ -10,23 +10,8 @@ const JWT_SECRET = process.env.JWT_SECRET || "rehabit_super_secret_key_123!";
 // Temporary memory store for unverified signups (email -> { otp, name, password, expires })
 const otpStore = new Map();
 
-// Setup Nodemailer
-const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false, // true for 465, false for other ports
-    family: 4,     // Force IPv4
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    },
-    tls: {
-        rejectUnauthorized: false
-    },
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 15000
-});
+const { Resend } = require("resend");
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 /* ══════════════════════════════════════
    REGISTER (Now issues OTP instead of saving immediately)
@@ -58,27 +43,25 @@ router.post("/register", async (req, res) => {
                 expires: Date.now() + 5 * 60 * 1000 // 5 minutes
             });
 
-            // Send Email OTP
-            const mailOptions = {
-                from: `"HabitAI Auth" <${process.env.EMAIL_USER}>`,
-                to: email,
-                subject: 'Your HabitAI Verification Code',
-                html: `<div style="font-family:sans-serif;text-align:center;padding:20px;">
-                        <h2>Verify your email address</h2>
-                        <p>Your 6-digit HabitAI security code is:</p>
-                        <h1 style="letter-spacing:10px;color:#7c3aed;background:#f3f4f6;padding:20px;border-radius:8px">${otpCode}</h1>
-                       </div>`
-            };
-
             console.log(`\n[SECURITY] OPT GENERATED FOR ${email} -> ${otpCode}\n`);
 
-            transporter.sendMail(mailOptions, (error, info) => {
-                if (error) {
-                    console.error("SMTP ERROR:", error);
-                } else {
-                    console.log("Email sent successfully:", info.response);
-                }
-            });
+            // Send Email OTP via Resend
+            try {
+                const data = await resend.emails.send({
+                    from: "HabitAI <onboarding@resend.dev>", // Replace with your verified domain when ready
+                    to: email,
+                    subject: "Your HabitAI Verification Code",
+                    html: `<div style="font-family:sans-serif;text-align:center;padding:20px;">
+                            <h2>Verify your email address</h2>
+                            <p>Your 6-digit HabitAI security code is:</p>
+                            <h1 style="letter-spacing:10px;color:#7c3aed;background:#f3f4f6;padding:20px;border-radius:8px">${otpCode}</h1>
+                           </div>`
+                });
+                console.log("Email sent successfully via Resend:", data);
+            } catch (error) {
+                console.error("RESEND API ERROR:", error);
+                // We don't block the frontend here because the OTP is still generated in memory
+            }
 
             return res.json({ requiresOtp: true, message: "OTP sent to email." });
         });
