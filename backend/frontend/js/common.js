@@ -2,7 +2,7 @@
    COMMON.JS — Shared state, utilities, auth
 ══════════════════════════════════════ */
 
-const API_BASE = window.location.origin.includes('localhost') ? 'http://localhost:3001' : window.location.origin;
+const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:') ? 'http://localhost:3001' : window.location.origin;
 
 /* ─── SHARED STATE ─── */
 window.habits = [];
