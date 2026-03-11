@@ -12,11 +12,17 @@ const otpStore = new Map();
 
 // Setup Nodemailer
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    family: 4,               // ← Force IPv4 (fixes Railway/cloud ETIMEDOUT)
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
-    }
+    },
+    connectionTimeout: 10000, // 10 seconds
+    greetingTimeout: 10000,
+    socketTimeout: 15000
 });
 
 /* ══════════════════════════════════════
