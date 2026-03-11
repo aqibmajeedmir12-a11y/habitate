@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const nodemailer = require("nodemailer");
 const db = require("../db");
 
 const JWT_SECRET = process.env.JWT_SECRET || "rehabit_super_secret_key_123!";
