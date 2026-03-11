@@ -13,14 +13,17 @@ const otpStore = new Map();
 // Setup Nodemailer
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
-    family: 4,               // ← Force IPv4 (fixes Railway/cloud ETIMEDOUT)
+    port: 587,
+    secure: false, // true for 465, false for other ports
+    family: 4,     // Force IPv4
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
     },
-    connectionTimeout: 10000, // 10 seconds
+    tls: {
+        rejectUnauthorized: false
+    },
+    connectionTimeout: 10000,
     greetingTimeout: 10000,
     socketTimeout: 15000
 });
