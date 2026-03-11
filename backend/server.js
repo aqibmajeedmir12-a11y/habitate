@@ -1,3 +1,6 @@
+const dns = require("dns");
+dns.setDefaultResultOrder("ipv4first");   // Force IPv4 globally (fixes Gmail SMTP on Railway)
+
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
