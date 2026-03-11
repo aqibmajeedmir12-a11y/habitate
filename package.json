@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "HabitAI - Root deploy package",
   "scripts": {
-    "start": "node backend/server.js"
+    "start": "node backend/server.js",
+    "install": "cd backend && npm install",
+    "build": "cd backend && npm install"
   },
   "engines": {
     "node": ">=18.0.0"
